@@ -1,0 +1,284 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>PhotoEditor block scale</title>
+  <style>
+    body{
+      padding: 0;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    /*Heder meny*/
+    .header{
+      background-color: #666;
+      height: 3rem;
+      overflow: hidden;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    .title{
+      color: #fff;
+      display: block;
+      float: left;
+      font-size: 1.125rem;
+      line-height: 3rem;
+    }
+    .viewiAngrea{
+      color: #fff;
+      line-height: 2rem;
+      position: absolute;
+      left: 50%;
+      margin-left: -4rem;
+    }
+   .sizeImg{
+      color: #fff;
+      line-height: 4rem;
+      position: absolute;
+      left: 50%;
+      margin-left: -3.5rem;
+    }
+    .navbar{
+      float: right;
+    }
+    .nav__meny[data-v-1]{
+      background-color: transparent;
+      border-width: 0;
+      color: #fff;
+      cursor: pointer;
+      display: block;
+      float: left;
+      height: 3rem;
+      line-height: 3rem;
+      text-align: center;
+      width: 3rem;
+      font-size: 0.875rem;
+    }
+    /*Edit meny+img+canvas*/
+    .loader{
+      display: table;
+      height: 100%;
+      overflow: hidden;
+      width: 100%;
+    }
+    .loader>p{
+    color: #999;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    }
+    .main{
+      background-color: #333;
+      bottom: 0;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 3rem;
+    }
+    .browse{
+      color: #0074d9;
+      cursor: pointer;
+      margin-left: 0.25rem;
+    }
+    input{
+      display: none;
+    }
+    .editoImg{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+    }
+    /*Toolbar*/
+    .toolbar[data-v-2]{
+      background-color: rgba(0,0,0,.5);
+      bottom: 1rem;
+      color: #fff;
+      height: 2rem;
+      left: 50%;
+      margin-left: -7.5rem;
+      position: absolute;
+      width: auto;
+      z-index: 2015;
+    }
+    .toolbar_button[data-v-2]{
+      background-color: transparent;
+      border-width: 0;
+      color: #fff;
+      cursor: pointer;
+      display: inline;
+      font-size: .875rem;
+      height: 2rem;
+      text-align: center;
+      padding: 0 0.7rem;
+    }
+  </style> 
+  <body>
+    <div id="wrapper">
+        <header class="header">
+        <span class="title" title="PhotoEditor-load+save+delat+adaptive screen">PhotoEditor SCALE</span>
+        
+        <span id="viewiAngrea" class="viewiAngrea"></span>
+        <span id="sizeImg" class="sizeImg"></span>
+
+        <div class="navbar">
+         <nav class="nab">
+          <button data-v-1 id="saveImg" class="nav__meny saveImg" title="Save imagen">Save</button>
+          <button data-v-1 id="delatImg" class="nav__meny delatImg" title="Delat">Delat</button>
+         </nav>
+        </div>
+        </header>
+
+        <main class="main" id="main">
+            <div class="loader" id="loader">
+                <p id="loadFail">Click to download image
+                    <label for="fileInput" class="browse">
+                        browse...
+                        <input type="file" name="file" id="fileInput" class="only" accept="image/*">
+                    </label>
+                </p>
+            </div>
+            <div data-v-2 class="toolbar">
+                <input data-v-2 class="toolbar_button" id="numWidth" type="number" value="0" style="width: 5rem;"/>
+                <span data-v-2 class="toolbar_button">x</span>
+                <input data-v-2 class="toolbar_button" id="numHeight" type="number" value="0" style="width: 5rem;"/>                
+            </div>    
+        </main>    
+
+    </div>        
+</body>
+
+<script>
+    /*dimensions of the page viewport inside the browser window (excluding borders and toolbars)*/
+let pageWidth = window.innerWidth,
+    pageHeight = window.innerHeight,
+    viewiAngrea = document.getElementById("viewiAngrea"),
+    sizeImg = document.getElementById("sizeImg");
+    if (typeof pageWidth != "number") {
+      if (document.compatMode == "CSS1Compat") {
+         pageWidth = document.documentElement.clientWidth;
+         pageHeight = document.documentElement.clientHeight;
+         } else {
+         pageWidth = document.body.clientWidth;
+         pageHeight = document.body.clientHeight;
+         }
+    }
+
+
+
+/*Load imagen*/
+let img = new Image();
+document.getElementById('fileInput').addEventListener('change', function() {    
+  if (this.files && this.files[0]) {             
+      img.src = URL.createObjectURL(this.files[0]);      
+      img.onload = loadImg;
+  }
+  });
+
+/*constructor canvas*/
+let canvas = document.createElement('canvas');
+function loadImg() { 
+
+    /*Info windows*/
+    viewiAngrea.innerHTML = "<span>Viewing area: </span>"+pageWidth+"x"+pageHeight+"рх"; 
+    /*Info imagen*/
+    let imgWidth = img.width,
+        imgHeight = img.height,
+        imgPreloadWidth,
+        imgPreloadHeight;
+        sizeImg.innerHTML = "<span>Image size: </span>"+imgWidth+"x"+imgHeight+"рх";
+    document.getElementById("numWidth").value = imgWidth;
+    document.getElementById("numHeight").value = imgHeight;
+              
+
+
+    document.getElementById("loader").setAttribute("class","editoImg");
+    document.getElementById("loader").setAttribute("id","editoImg");
+    document.getElementById("loadFail").remove();
+
+    canvas.id = "canvasResult";
+    canvas.width = imgWidth;
+    canvas.height = imgHeight;
+    if(imgWidth > imgHeight){/*horizontal img*/
+      if (pageWidth >= pageHeight) {/*horizontal screen*/
+        if (imgHeight <= pageHeight) {
+           imgPreloadHeight = imgHeight;
+           imgPreloadWidth = imgWidth;
+        }else{
+           imgPreloadHeight = pageHeight-48;  
+           imgPreloadWidth = imgPreloadHeight*(imgWidth/imgHeight);
+        } 
+      } else {/*vertical screen*/
+        if (imgWidth <= pageWidth) {
+          imgPreloadHeight = imgHeight;
+          imgPreloadWidth = imgWidth;
+        } else {
+          imgPreloadWidth = pageWidth;
+          imgPreloadHeight = imgPreloadWidth*(imgHeight/imgWidth);
+        }
+      }
+    }else{/*vertical img*/
+      if (imgHeight <= pageHeight) {
+           imgPreloadHeight = imgHeight;
+           imgPreloadWidth = imgWidth;
+       }else{
+           imgPreloadHeight = pageHeight-48;  
+           imgPreloadWidth = imgPreloadHeight*(imgWidth/imgHeight);          
+       }
+    }
+    
+    
+    canvas.style.width = imgPreloadWidth+"px";
+    canvas.style.height = imgPreloadHeight+"px";
+    
+    document.getElementById("editoImg").append(canvas);
+    
+    window.addEventListener("resize", function () {Init()}, false);  
+ 
+    function Init() {
+      if (imgWidth > imgHeight) {
+        if (imgPreloadWidth > window.innerWidth) {
+            canvas.style.width = "auto";
+            canvas.style.height = (window.innerHeight-48)+"px";
+        } else {
+          canvas.style.width = imgPreloadWidth+"px";
+          canvas.style.height = imgPreloadHeight+"px";
+        } 
+      }
+
+        if (imgWidth < imgHeight) {
+            canvas.style.width = "auto";         
+            canvas.style.height = (window.innerHeight-48)+"px";
+        }
+    }
+    
+    let canvasResult = document.getElementById("canvasResult").getContext("2d");
+    canvasResult.drawImage(img,0,0);
+}  
+
+//Save Imagen
+saveImg.addEventListener("click", function () {
+    if (navigator.userAgent.indexOf("Chrome") != -1) {
+        let width = canvas.width,
+            height =canvas.height;
+        let string = canvas.toDataURL("image/jpeg",1),
+        iframe = "<iframe width='"+width+"px' height='"+height+"px' src='" + string + "'></iframe>",
+        x = window.open();
+        x.document.open();
+        x.document.write(iframe);
+        x.document.close();
+    } else {
+    //не работает в Chrome
+       window.open(canvas.toDataURL("image/jpeg",1)); 
+    }
+},false)
+
+/*Reset*/  
+let delatImg = document.getElementById("delatImg");
+delatImg.addEventListener("click",()=>{window.location.reload();},false)
+</script>
+</head>  
+
