@@ -99,12 +99,12 @@
       color: #fff;
       height: 2rem;
       left: 50%;
-      margin-left: -7.5rem;
+      margin-left: -2.0rem;
       position: absolute;
       width: auto;
       z-index: 2015;
     }
-    .toolbar_button[data-v-2]{
+    .toolbar_button[data-v-2], .scaleVersion{
       background-color: transparent;
       border-width: 0;
       color: #fff;
@@ -114,6 +114,37 @@
       height: 2rem;
       text-align: center;
       padding: 0 0.7rem;
+    }
+    /*Scale add meny*/
+    .scaleMenu, .tip{
+      position: absolute;
+      z-index: 2147483647;
+      text-decoration: none;
+      background-color: rgba(0,0,0,.5);
+      transform: translateX(-75px) translateY(-41px);
+      display: flex;
+    }
+    .tip{
+      border: 0;
+      margin: 0;
+      padding: 0;
+    }    
+    .tip{
+      z-index: -1;
+      width: 0.65em;
+      height: 0.65em;
+      margin-left: -0.25em;
+      margin-top: -0.25em;
+      transform: scaleX(1)rotate(45deg);
+      top: 31px;
+      left: 103.5px;
+    }
+    option{
+      color: black;
+      background-color: transparent;
+    }
+    img{
+      padding: 7px;
     }
   </style> 
   <body>
@@ -142,9 +173,23 @@
                 </p>
             </div>
             <div data-v-2 class="toolbar">
-                <input data-v-2 class="toolbar_button" id="numWidth" type="number" value="0" style="width: 5rem;"/>
-                <span data-v-2 class="toolbar_button">x</span>
-                <input data-v-2 class="toolbar_button" id="numHeight" type="number" value="0" style="width: 5rem;"/>                
+
+             <div class="scaleMenu" id="scaleMenu">  
+              <input data-v-2 class="toolbar_button" id="numWidth" type="number" value="0" style="width: 3.5rem;"/></li>
+              <span data-v-2 class="toolbar_button">
+                    <img src="/icons/lock-svgrepo-com.svg" alt="X">
+              </span>  
+              <input data-v-2 class="toolbar_button" id="numHeight" type="number" value="0" style="width: 3.5rem;" disabled/>
+              <select class="scaleVersion" name="scaleVersion" id="scaleVersion" size="1">
+                <option value="neighbor" selected>Nearest neighbor scaling</option>
+                <option value="bilinear">Bilinear scaling</option>
+                <option value="lanczos">Lanczos scaling</option>
+              </select> 
+              <span class="tip"></span>
+              </div>
+
+              <input data-v-2 class="toolbar_button" type="button" id="scaleImg" value="Scale" title="scale">    
+                  
             </div>    
         </main>    
 
