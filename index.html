@@ -104,7 +104,7 @@
       width: auto;
       z-index: 2015;
     }
-    .toolbar_button[data-v-2], .scaleVersion{
+    .toolbar_button[data-v-2], .scaleVersion, .scaleImgButton {
       background-color: transparent;
       border-width: 0;
       color: #fff;
@@ -116,13 +116,12 @@
       padding: 0 0.7rem;
     }
     /*Scale add meny*/
+    .scaleMenu{display: none;}
     .scaleMenu, .tip{
       position: absolute;
       z-index: 2147483647;
-      text-decoration: none;
       background-color: rgba(0,0,0,.5);
       transform: translateX(-75px) translateY(-41px);
-      display: flex;
     }
     .tip{
       border: 0;
@@ -142,6 +141,7 @@
     option{
       color: black;
       background-color: transparent;
+      text-align: left;
     }
     img{
       padding: 7px;
@@ -175,12 +175,14 @@
             <div data-v-2 class="toolbar">
 
              <div class="scaleMenu" id="scaleMenu">  
-              <input data-v-2 class="toolbar_button" id="numWidth" type="number" value="0" style="width: 3.5rem;"/></li>
+
+              <input data-v-2 class="toolbar_button" id="numWidth" type="number" value="0" style="width: 3.5rem;" title="width imagen"/>
               <span data-v-2 class="toolbar_button">
-                    <img src="/icons/lock-svgrepo-com.svg" alt="X">
+                    <img id="buttonAspectratio" src="/icons/lock-svgrepo-com.svg" alt="X" title="keep proportions">
               </span>  
-              <input data-v-2 class="toolbar_button" id="numHeight" type="number" value="0" style="width: 3.5rem;" disabled/>
-              <select class="scaleVersion" name="scaleVersion" id="scaleVersion" size="1">
+              <input data-v-2 class="toolbar_button" id="numHeight" type="number" value="0" style="width: 3.5rem; color: brown;" title="height imagen" disabled/>
+
+              <select class="scaleVersion" name="scaleVersion" id="scaleVersion" size="1" title="Scaling methods">
                 <option value="neighbor" selected>Nearest neighbor scaling</option>
                 <option value="bilinear">Bilinear scaling</option>
                 <option value="lanczos">Lanczos scaling</option>
@@ -188,7 +190,7 @@
               <span class="tip"></span>
               </div>
 
-              <input data-v-2 class="toolbar_button" type="button" id="scaleImg" value="Scale" title="scale">    
+              <input class="scaleImgButton" type="button" id="scaleImg" value="Scale" title="scale imagen">    
                   
             </div>    
         </main>    
@@ -235,9 +237,42 @@ function loadImg() {
         imgPreloadWidth,
         imgPreloadHeight;
         sizeImg.innerHTML = "<span>Image size: </span>"+imgWidth+"x"+imgHeight+"рх";
-    document.getElementById("numWidth").value = imgWidth;
-    document.getElementById("numHeight").value = imgHeight;
-              
+    /*inlain imagen*/
+    let numWidth = document.getElementById("numWidth"),
+        numHeight = document.getElementById("numHeight");
+    numWidth.value = imgWidth;
+    numHeight.value = imgHeight;
+    /*action scale button*/
+    let scaleImg = document.getElementById("scaleImg"),
+        scaleMenu = document.getElementById("scaleMenu");
+    scaleImg.addEventListener("click", function () {
+      scaleImg.classList.toggle("active");
+      if (scaleImg.className == "scaleImgButton active") {
+        scaleMenu.style.display = "flex";
+        scaleImg.style.backgroundColor= "burlywood";  
+      } else {
+        scaleMenu.style.display = "none";
+        scaleImg.style.backgroundColor = "transparent";
+      }  
+    })
+    /*Opel/closet aspectratio*/
+    let buttonAspectratio = document.getElementById("buttonAspectratio");
+    buttonAspectratio.addEventListener("click", function () {
+      numHeight.classList.toggle("open");
+      if ( numHeight.className == "toolbar_button open") {
+        numHeight.disabled = false;
+        numHeight.style.color = "#fff";
+        buttonAspectratio.setAttribute("src","/icons/lock-open-svgrepo-com.svg");
+        buttonAspectratio.title = "don't keep proportions";
+      } else {
+        numHeight.disabled = true;
+        numHeight.style.color = "brown";
+        buttonAspectratio.setAttribute("src","/icons/lock-svgrepo-com.svg");
+        buttonAspectratio.title = "keep proportions";
+      } 
+    })
+/*perform proportions*/
+scaleMenu.addEventListener('input',function (){if (numHeight.className =="toolbar_button") {numHeight.value = Math.round(img.height * numWidth.value / img.width);}})              
 
 
     document.getElementById("loader").setAttribute("class","editoImg");
