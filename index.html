@@ -159,6 +159,7 @@
          <nav class="nab">
           <button data-v-1 id="saveImg" class="nav__meny saveImg" title="Save imagen">Save</button>
           <button data-v-1 id="delatImg" class="nav__meny delatImg" title="Delat">Delat</button>
+          <button data-v-1 id="resetImg" class="nav__meny resetImg" title="Reset">Reset</button>
          </nav>
         </div>
         </header>
@@ -274,7 +275,7 @@ function loadImg() {
 /*perform proportions*/
 scaleMenu.addEventListener('input',function (){if (numHeight.className =="toolbar_button") {numHeight.value = Math.round(img.height * numWidth.value / img.width);}})              
 
-
+    
     document.getElementById("loader").setAttribute("class","editoImg");
     document.getElementById("loader").setAttribute("id","editoImg");
     document.getElementById("loadFail").remove();
@@ -341,6 +342,7 @@ scaleMenu.addEventListener('input',function (){if (numHeight.className =="toolba
 
 //Save Imagen
 saveImg.addEventListener("click", function () {
+  if (document.getElementById("canvasResult")) {
     if (navigator.userAgent.indexOf("Chrome") != -1) {
         let width = canvas.width,
             height =canvas.height;
@@ -353,12 +355,31 @@ saveImg.addEventListener("click", function () {
     } else {
     //не работает в Chrome
        window.open(canvas.toDataURL("image/jpeg",1)); 
-    }
+    } 
+  } else {
+    warning (); 
+  }
 },false)
 
-/*Reset*/  
+/*Delat imagen*/  
 let delatImg = document.getElementById("delatImg");
 delatImg.addEventListener("click",()=>{window.location.reload();},false)
+/*Reset*/  
+let resetImg = document.getElementById("resetImg");
+resetImg.addEventListener("click", function () {  
+  if (document.getElementById("canvasResult")) {
+    if (numWidth.value !== " " || numHeight.value !== " ") {
+      numWidth.value = img.width;
+        numHeight.value = img.height;                
+      }
+  } else {
+    warning (); 
+  }
+})
+/*warning of click*/
+function warning() {
+      alert("Загрузите фото");
+    }
 </script>
 </head>  
 
